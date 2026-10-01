@@ -27,7 +27,7 @@
     {% endif %}
     <hr>
     <div>
-        {{ post.content | markdown | safe }}
+        {{ post.content | markdown }}
     </div>
 </article>
 <hr class="my-4">
@@ -35,12 +35,16 @@
 <div class="mb-3">
     <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-secondary btn-sm">Редагувати</a>
     <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="POST" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-danger btn-sm"
             onclick="return confirm('Ви впевнені, що хочете видалити цю статтю?');">Видалити</button>
     </form>
 </div>
+{% endif %}
 <div class="mt-3">
+    {% if current_user.is_authenticated %}
     <form action="{{ url_for('posts.like_action', post_id=post.id) }}" method="POST" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-outline-danger btn-sm">
             {% if post.is_liked_by(current_user) %}
             ❤️ Liked
@@ -49,9 +53,9 @@
             {% endif %}
         </button>
     </form>
+    {% endif %}
     <span class="ms-2">{{ post.likes.count() }} вподобань</span>
 </div>
-{% endif %}
 <hr>
 
 {% if recommendations %}
@@ -68,6 +72,7 @@
 <h3>Коментарі</h3>
 {% if current_user.is_authenticated %}
 <form method="POST" action="{{ url_for('posts.add_comment', post_id=post.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="mb-3">
         <textarea name="comment_body" class="form-control" rows="3" placeholder="Залиште свій коментар..."
             required></textarea>
@@ -85,13 +90,14 @@
         <small class="text-muted">
             Автор: {{ comment.author.username }} | {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}
             {% if current_user == comment.author %}
-            <button type="button" class-="btn btn-link btn-sm text-secondary p-0 ms-2" data-bs-toggle="modal"
+            <button type="button" class="btn btn-link btn-sm text-secondary p-0 ms-2" data-bs-toggle="modal"
                 data-bs-target="#editCommentModal-{{ comment.id }}">
                 Редагувати
             </button>
 
             <form action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" class="d-inline">
-                <button type-="submit" class="btn btn-link btn-sm text-danger p-0 ms-1"
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-1"
                     onclick="return confirm('Ви впевнені?');">Видалити</button>
             </form>
 
@@ -99,6 +105,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="POST" action="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="modal-header">
                                 <h5 class="modal-title">Редагувати коментар</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

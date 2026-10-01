@@ -51,13 +51,12 @@
     </style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Мій блог</title>
+    <title>{% block title %}Re:Action{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://unpkg.com/@yaireo/tagify"></script>
-    <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.39.0/dist/tagify.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.39.0/dist/tagify.css" rel="stylesheet" type="text/css" />
 
 </head>
 
@@ -84,11 +83,14 @@
                     <a class="nav-link" href="{{ url_for('posts.create_post') }}">Створити статтю</a>
                     <a class="nav-link" href="{{ url_for('users.profile', username=current_user.username) }}">Мій
                         профіль</a>
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}">
-                        <img src="{{ current_user.avatar(30) }}" class="rounded-circle"
-                            style="width: 30px; height: 30px; margin-right: 5px;">
-                        Вийти
-                    </a>
+                    <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="nav-link btn btn-link">
+                            <img src="{{ current_user.avatar(30) }}" class="rounded-circle"
+                                style="width: 30px; height: 30px; margin-right: 5px;">
+                            Вийти
+                        </button>
+                    </form>
                     {% else %}
                     <a class="nav-link" href="{{ url_for('auth.login') }}">Увійти</a>
                     <a class="nav-link" href="{{ url_for('auth.register') }}">Реєстрація</a>

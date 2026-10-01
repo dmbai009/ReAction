@@ -1,9 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, current_user
+from flask_login import UserMixin
 import datetime
 from hashlib import md5
 
 db = SQLAlchemy()
+
+def utcnow():
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
 post_tags = db.Table('post_tags',
     db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
@@ -27,7 +30,7 @@ class Post(db.Model):
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     excerpt = db.Column(db.String(500), nullable=True)
-    published_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    published_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tags = db.relationship('Tag', secondary=post_tags, backref='posts', lazy=True)
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
@@ -49,7 +52,7 @@ class Tag(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     
@@ -59,11 +62,14 @@ class Comment(db.Model):
         return f'<Comment {self.id}>'
     
 class UserPostInteraction(db.Model):
+    __table_args__ = (
+        db.Index('uq_interaction_user_post_type', 'user_id', 'post_id', 'interaction_type', unique=True),
+    )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     interaction_type = db.Column(db.String(20), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    timestamp = db.Column(db.DateTime, nullable=False, default=utcnow)
 
     user = db.relationship('User')
 
@@ -71,6 +77,9 @@ class UserPostInteraction(db.Model):
         return f'<Interaction user:{self.user_id} post:{self.post_id}>'
     
 class Like(db.Model):
+    __table_args__ = (
+        db.Index('uq_like_user_post', 'user_id', 'post_id', unique=True),
+    )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)

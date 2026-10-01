@@ -4,9 +4,10 @@
 <h2>Створити нову статтю</h2>
 <hr>
 <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="mb-3">
         <label for="title" class="form-label">Заголовок</label>
-        <input type="text" class="form-control" id="title" name="title" required value="{{ title or '' }}">
+        <input type="text" class="form-control" id="title" name="title" required maxlength="255" value="{{ title or '' }}">
     </div>
     <div class="mb-3">
         <label for="content" class="form-label">Зміст статті</label>

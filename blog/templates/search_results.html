@@ -8,7 +8,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
-        <p class="card-text">{{ post.content[:200] }}...</p>
+        <p class="card-text">{{ post.content | excerpt(200) }}</p>
         <p class="card-text"><small class="text-muted">Автор: {{ post.author.username }}</small></p>
         <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">Читати далі</a>
     </div>

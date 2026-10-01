@@ -4,16 +4,17 @@
 <h2>Редагувати статтю</h2>
 <hr>
 <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="mb-3">
         <label for="title" class="form-label">Заголовок</label>
-        <input type="text" class="form-control" id="title" name="title" required value="{{ post.title }}">
+        <input type="text" class="form-control" id="title" name="title" required maxlength="255" value="{{ post.title }}">
     </div>
     <div class="mb-3">
         <label for="content" class="form-label">Зміст статті</label>
         <textarea class="form-control" id="content" name="content" rows="10">{{ post.content }}</textarea>
     </div>
     <div class="mb-3">
-        <label for="tags" class="form-label">Теги (через кому)</label>
+        <label for="tags" class="form-label">Теги</label>
         <input type="text" class="form-control" id="tags" name="tags" placeholder="Додайте теги...">
     </div>
     <button type="submit" class="btn btn-primary">Зберегти зміни</button>

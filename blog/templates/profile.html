@@ -5,7 +5,7 @@
     <div class="col-md-4">
         <img src="{{ user.avatar(200) }}" class="img-fluid rounded-circle mb-3" alt="Avatar">
         <h3>{{ user.username }}</h3>
-        <p class="text-muted">Дата реєстрації: {{ user.id }}</p> <!-- Поки що просто ID для прикладу -->
+        <p class="text-muted">Статей: {{ user.posts | length }}</p>
     </div>
     <div class="col-md-8">
         <h4>Статті автора:</h4>

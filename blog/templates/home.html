@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-4">Останні статті</h1>
+<h1 class="mb-4">{% if feed_type == 'recommended' %}Рекомендовані статті{% else %}Останні статті{% endif %}</h1>
 
 <div class="nav nav-pills mb-3">
     <a class="nav-link {% if feed_type == 'latest' %}active{% endif %}"
@@ -17,7 +17,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
-        <p class="card-text">{{ post.content[:300] | markdown | safe }}...</p>
+        <p class="card-text">{{ post.content | excerpt(300) }}</p>
         {% if post.tags %}
         <p>
             Теги:
@@ -42,8 +42,10 @@
         <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">Читати далі</a>
     </div>
 </div>
-<div class="mt-3">
+<div class="mb-3">
+    {% if current_user.is_authenticated %}
     <form action="{{ url_for('posts.like_action', post_id=post.id) }}" method="POST" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-outline-danger btn-sm">
             {% if post.is_liked_by(current_user) %}
             ❤️ Liked
@@ -52,9 +54,12 @@
             {% endif %}
         </button>
     </form>
+    {% endif %}
     <span class="ms-2">{{ post.likes.count() }} вподобань</span>
 </div>
 {% endfor %}
+{% elif feed_type == 'recommended' %}
+<p>Поки що нема чого порекомендувати.</p>
 {% else %}
 <p>Ще немає жодної статті. Станьте першим!</p>
 {% endif %}
