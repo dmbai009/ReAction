@@ -1,154 +1,160 @@
-# Re:Action — інтелектуальна блог-платформа
+# Re:Action — a smart blogging platform
 
-**Re:Action** — повнофункціональний веб-додаток для ведення блогу, розроблений у рамках дипломної роботи. Ключова особливість — вбудований модуль машинного навчання, який підбирає користувачам персоналізовані рекомендації статей.
+**English** | [Українська](README.uk.md)
+
+**Re:Action** is a full-featured blogging web application built as a diploma project. Its key feature is a built-in machine learning module that gives readers personalized article recommendations.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7-F7931E?logo=scikitlearn&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Зміст
+> The user interface is in Ukrainian.
 
-- [Можливості](#можливості)
-- [Технологічний стек](#технологічний-стек)
-- [Швидкий старт](#швидкий-старт)
-- [Структура проєкту](#структура-проєкту)
-- [Як працюють рекомендації](#як-працюють-рекомендації)
-- [Конфігурація](#конфігурація)
-- [Тести](#тести)
-- [Документація](#документація)
-- [Відомі обмеження](#відомі-обмеження)
-- [Ліцензія](#ліцензія)
+## Contents
 
-## Можливості
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Quick start](#quick-start)
+- [Project structure](#project-structure)
+- [Configuration](#configuration)
+- [Tests](#tests)
+- [How recommendations work](#how-recommendations-work)
+- [Documentation](#documentation)
+- [Known limitations](#known-limitations)
+- [License](#license)
 
-- **Автентифікація** — реєстрація з валідацією, вхід і вихід; паролі хешуються через bcrypt.
-- **Статті (CRUD)** — створення, перегляд, редагування та видалення власних статей.
-- **Markdown-редактор** — SimpleMDE з панеллю форматування і попереднім переглядом.
-- **Соціальні функції** — коментарі (з редагуванням і видаленням) та лайки.
-- **Теги** — категоризація статей з автодоповненням (Tagify) і сторінкою статей за тегом.
-- **Персоналізація на основі ML:**
-  - стрічка **«Рекомендовані»** — статті, підібрані за історією переглядів і лайків користувача;
-  - блок **«Схожі статті»** на сторінці кожної публікації.
-- **Пошук** — по заголовках, змісту, іменах авторів і тегах.
-- **Безпека** — CSRF-захист усіх форм, санітизація HTML після Markdown, секрети в змінних оточення.
-- **Профілі користувачів** з аватарами Gravatar.
-- **Адаптивний дизайн** на Bootstrap 5 і **темна тема** з запам'ятовуванням вибору.
+## Features
 
-## Технологічний стек
+- **Authentication**: sign-up with validation, log in and log out. Passwords are hashed with bcrypt.
+- **Articles (CRUD)**: create, read, edit and delete your own articles.
+- **Markdown editor**: SimpleMDE with a formatting toolbar and preview.
+- **Social features**: comments (editable and deletable) and likes.
+- **Tags**: categorize articles with autocomplete (Tagify), and browse articles by tag.
+- **ML-based personalization**:
+  - a **Recommended** feed with articles picked from the user's view and like history;
+  - a **Similar articles** block on every article page.
+- **Search** across titles, content, author names and tags.
+- **Security**: CSRF protection on every form, HTML sanitization after Markdown rendering, secrets in environment variables.
+- **User profiles** with Gravatar avatars.
+- **Responsive design** on Bootstrap 5 and a **dark theme** that remembers your choice.
 
-| Шар | Технології |
+## Tech stack
+
+| Layer | Technologies |
 |---|---|
 | Backend | Python, Flask 3 (blueprints, application factory) |
-| База даних | SQLite через Flask-SQLAlchemy / SQLAlchemy 2 |
-| Автентифікація та безпека | Flask-Login, Flask-Bcrypt, Flask-WTF (CSRF), nh3 (санітизація HTML) |
-| Машинне навчання | scikit-learn (TF-IDF, косинусна подібність), NumPy |
+| Database | SQLite via Flask-SQLAlchemy / SQLAlchemy 2 |
+| Auth and security | Flask-Login, Flask-Bcrypt, Flask-WTF (CSRF), nh3 (HTML sanitization) |
+| Machine learning | scikit-learn (TF-IDF, cosine similarity), NumPy |
 | Frontend | Jinja2, HTML5, CSS3, JavaScript, Bootstrap 5 |
-| JS-бібліотеки | SimpleMDE, Tagify |
-| Тести | pytest |
+| JS libraries | SimpleMDE, Tagify |
+| Tests | pytest |
 
-## Швидкий старт
+## Quick start
 
-**Потрібно:** Python 3.9+.
+**Requires:** Python 3.9+.
 
 ```bash
-# 1. Клонувати репозиторій
+# 1. Clone the repository
 git clone https://github.com/dmbai009/ReAction.git
 cd ReAction
 
-# 2. Створити та активувати віртуальне середовище
+# 2. Create and activate a virtual environment
 python -m venv venv
 .\venv\Scripts\activate        # Windows
 # source venv/bin/activate     # macOS / Linux
 
-# 3. Встановити залежності
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. (необов'язково) Налаштувати оточення — див. «Конфігурація»
+# 4. (optional) Configure the environment, see "Configuration"
 copy .env.example .env         # Windows
 # cp .env.example .env         # macOS / Linux
 
-# 5. Запустити
+# 5. Run
 python app.py
 ```
 
-Застосунок буде доступний за адресою **http://127.0.0.1:5000**. Зупинити сервер — `Ctrl + C`.
+The app is served at **http://127.0.0.1:5000**. Stop the server with `Ctrl + C`.
 
-Під час першого запуску автоматично створюється база даних `instance/blog.db`.
+The database `instance/blog.db` is created automatically on first run.
 
-> **Зміна моделей даних.** Міграцій у проєкті немає: після зміни `blog/models.py` треба видалити `instance/blog.db` і перезапустити застосунок. **Це видалить усі дані** (користувачів, статті, коментарі).
+> **Changing the data models.** The project has no migrations: after changing `blog/models.py`, delete `instance/blog.db` and restart the app. **This deletes all data** (users, articles, comments).
 
-## Структура проєкту
+## Project structure
 
 ```
 ReAction/
-├── app.py               # точка входу
-├── requirements.txt     # залежності застосунку
-├── requirements-dev.txt # + залежності для тестів
-├── .env.example         # приклад конфігурації
+├── app.py               # entry point
+├── requirements.txt     # app dependencies
+├── requirements-dev.txt # + test dependencies
+├── .env.example         # configuration example
 ├── blog/
-│   ├── __init__.py      # фабрика застосунку, конфігурація, фільтри markdown / excerpt
-│   ├── models.py        # моделі SQLAlchemy
-│   ├── recommender.py   # ML-модуль рекомендацій
-│   ├── auth.py          # реєстрація / вхід / вихід
-│   ├── main.py          # головна сторінка (стрічки) і пошук
-│   ├── posts.py         # статті, теги, коментарі, лайки
-│   ├── users.py         # профілі
-│   └── templates/       # шаблони Jinja2
-├── tests/               # тести pytest
-├── docs/                # технічна документація
-└── instance/            # SQLite-база (створюється автоматично, не в git)
+│   ├── __init__.py      # app factory, configuration, markdown / excerpt filters
+│   ├── models.py        # SQLAlchemy models
+│   ├── recommender.py   # ML recommendation module
+│   ├── auth.py          # sign-up / log in / log out
+│   ├── main.py          # home page (feeds) and search
+│   ├── posts.py         # articles, tags, comments, likes
+│   ├── users.py         # profiles
+│   └── templates/       # Jinja2 templates
+├── tests/               # pytest tests
+├── docs/                # technical documentation
+└── instance/            # SQLite database (created automatically, not in git)
 ```
 
-## Конфігурація
+## Configuration
 
-Налаштування читаються зі змінних оточення; файл `.env` у корені проєкту підхоплюється автоматично (шаблон — [`.env.example`](.env.example)).
+Settings are read from environment variables. A `.env` file in the project root is loaded automatically (template: [`.env.example`](.env.example)).
 
-| Змінна | За замовчуванням | Опис |
+| Variable | Default | Description |
 |---|---|---|
-| `SECRET_KEY` | випадковий при кожному запуску | ключ підпису сесій і CSRF-токенів. Без нього всі користувачі виходять з акаунту після перезапуску |
-| `DATABASE_URL` | `sqlite:///blog.db` | URL бази даних SQLAlchemy; відносний шлях SQLite рахується від папки `instance/` |
-| `FLASK_DEBUG` | `0` | `1` вмикає відладчик і автоперезавантаження. Ніколи не вмикайте на публічному сервері |
+| `SECRET_KEY` | random on every start | signs sessions and CSRF tokens. Without it, all users are logged out when the app restarts |
+| `DATABASE_URL` | `sqlite:///blog.db` | SQLAlchemy database URL. A relative SQLite path is resolved against the `instance/` folder |
+| `FLASK_DEBUG` | `0` | `1` enables the debugger and auto-reload. Never enable it on a public server |
 
-Згенерувати ключ: `python -c "import secrets; print(secrets.token_hex(32))"`.
+Generate a key: `python -c "import secrets; print(secrets.token_hex(32))"`.
 
-## Тести
+## Tests
 
 ```bash
 pip install -r requirements-dev.txt
 python -m pytest
 ```
 
-Тести використовують базу SQLite в пам'яті й не зачіпають `instance/blog.db`. Покрито автентифікацію та валідацію, CRUD статей і коментарів, права доступу, лайки, пошук, рекомендації (зокрема порожню базу й тексти без слів), CSRF, санітизацію Markdown та унікальні індекси.
+The tests use an in-memory SQLite database and never touch `instance/blog.db`. They cover authentication and validation, article and comment CRUD, access control, likes, search, recommendations (including an empty database and texts with no words), CSRF, Markdown sanitization and unique indexes.
 
-## Як працюють рекомендації
+## How recommendations work
 
-Рекомендації **контентні** (content-based): кожна стаття (заголовок + текст) перетворюється на TF-IDF-вектор, а близькість між статтями вимірюється косинусною подібністю.
+Recommendations are **content-based**: each article (title + text) is turned into a TF-IDF vector, and closeness between articles is measured with cosine similarity.
 
-- **Схожі статті** — 3 статті, найближчі до поточної.
-- **Стрічка «Рекомендовані»** — профіль користувача будується як зважене середнє векторів переглянутих (вага 1) і вподобаних (+2) статей; показуються 10 найближчих до нього статей, яких користувач ще не бачив.
+- **Similar articles**: the 3 articles closest to the current one.
+- **Recommended feed**: the user profile is a weighted average of the vectors of viewed (weight 1) and liked (+2) articles. The feed shows the 10 articles closest to it that the user hasn't seen yet.
 
-Статті без жодного спільного слова не вважаються схожими. Порожня база й тексти без розпізнаваних слів обробляються без помилок.
+Articles with no words in common are not treated as similar. An empty database and texts with no recognizable words are handled without errors.
 
-Детальніше — у [docs/RECOMMENDER.md](docs/RECOMMENDER.md).
+More details in [docs/RECOMMENDER.md](docs/RECOMMENDER.md).
 
-## Документація
+## Documentation
 
-| Документ | Зміст |
+The detailed docs are in Ukrainian.
+
+| Document | Contents |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | архітектура, маршрути, модель даних |
-| [docs/RECOMMENDER.md](docs/RECOMMENDER.md) | алгоритм рекомендацій і його обмеження |
-| [SECURITY.md](SECURITY.md) | відомі проблеми безпеки та як повідомляти про нові |
-| [CHANGELOG.md](CHANGELOG.md) | історія змін |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | architecture, routes, data model |
+| [docs/RECOMMENDER.md](docs/RECOMMENDER.md) | the recommendation algorithm and its limitations |
+| [SECURITY.md](SECURITY.md) | security measures, open issues, how to report vulnerabilities |
+| [CHANGELOG.md](CHANGELOG.md) | change history |
 
-## Відомі обмеження
+## Known limitations
 
-- Немає міграцій БД (Alembic). Нові таблиці та індекси створюються автоматично, але нові **колонки** в наявних таблицях — ні.
-- Немає обмеження частоти спроб входу — див. [SECURITY.md](SECURITY.md).
-- Рекомендації перераховуються на кожен запит — для великої кількості статей знадобиться кешування.
-- Пошук у SQLite нечутливий до регістру лише для латиниці.
-- Бібліотеки фронтенду підключаються з CDN — без інтернету редактор і теги не працюють.
+- No database migrations (Alembic). New tables and indexes are created automatically, but new **columns** in existing tables are not.
+- No rate limiting on login attempts, see [SECURITY.md](SECURITY.md).
+- Recommendations are recomputed on every request; a large number of articles would need caching.
+- SQLite search is case-insensitive for Latin letters only.
+- Frontend libraries load from a CDN, so the editor and tags don't work offline.
 
-## Ліцензія
+## License
 
-Розповсюджується під ліцензією MIT — див. [LICENSE](LICENSE).
+Distributed under the MIT License. See [LICENSE](LICENSE).
