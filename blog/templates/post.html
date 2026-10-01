@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+    <h1 class="mb-3">{{ post.title }}</h1>
+    <div class="d-flex align-items-center mb-3">
+        <img src="{{ post.author.avatar(50) }}" class="rounded-circle"
+            style="width: 50px; height: 50px; margin-right: 15px;">
+        <div>
+            <h5 class="mb-0">
+                <a href="{{ url_for('users.profile', username=post.author.username) }}" class="text-decoration-none">{{
+                    post.author.username }}</a>
+            </h5>
+            <small class="text-muted">
+                Опубліковано: {{ post.published_at.strftime('%d-%m-%Y') }}
+            </small>
+        </div>
+    </div>
+    {% if post.tags %}
+    <div class="mb-3">
+        Теги:
+        {% for tag in post.tags %}
+        <a href="{{ url_for('posts.posts_by_tag', tag_name=tag.name) }}" class="badge bg-info text-decoration-none">{{
+            tag.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <hr>
+    <div>
+        {{ post.content | markdown | safe }}
+    </div>
+</article>
+<hr class="my-4">
+{% if current_user.is_authenticated and current_user.id == post.author.id %}
+<div class="mb-3">
+    <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-secondary btn-sm">Редагувати</a>
+    <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-danger btn-sm"
+            onclick="return confirm('Ви впевнені, що хочете видалити цю статтю?');">Видалити</button>
+    </form>
+</div>
+<div class="mt-3">
+    <form action="{{ url_for('posts.like_action', post_id=post.id) }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+            {% if post.is_liked_by(current_user) %}
+            ❤️ Liked
+            {% else %}
+            🤍 Like
+            {% endif %}
+        </button>
+    </form>
+    <span class="ms-2">{{ post.likes.count() }} вподобань</span>
+</div>
+{% endif %}
+<hr>
+
+{% if recommendations %}
+<h3>Схожі статті:</h3>
+<div class="list-group">
+    {% for rec_post in recommendations %}
+    <a href="{{ url_for('posts.post', post_id=rec_post.id) }}" class="list-group-item list-group-item-action">
+        {{ rec_post.title }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+<hr>
+<h3>Коментарі</h3>
+{% if current_user.is_authenticated %}
+<form method="POST" action="{{ url_for('posts.add_comment', post_id=post.id) }}">
+    <div class="mb-3">
+        <textarea name="comment_body" class="form-control" rows="3" placeholder="Залиште свій коментар..."
+            required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Відправити</button>
+</form>
+{% else %}
+<p><a href="{{ url_for('auth.login') }}">Увійдіть</a>, щоб залишити коментар.</p>
+{% endif %}
+
+{% for comment in post.comments | sort(attribute='created_at', reverse=True) %}
+<div class="card my-3">
+    <div class="card-body">
+        <p>{{ comment.body }}</p>
+        <small class="text-muted">
+            Автор: {{ comment.author.username }} | {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}
+            {% if current_user == comment.author %}
+            <button type="button" class-="btn btn-link btn-sm text-secondary p-0 ms-2" data-bs-toggle="modal"
+                data-bs-target="#editCommentModal-{{ comment.id }}">
+                Редагувати
+            </button>
+
+            <form action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" class="d-inline">
+                <button type-="submit" class="btn btn-link btn-sm text-danger p-0 ms-1"
+                    onclick="return confirm('Ви впевнені?');">Видалити</button>
+            </form>
+
+            <div class="modal fade" id="editCommentModal-{{ comment.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" action="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Редагувати коментар</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <textarea name="comment_body" class="form-control" rows="3"
+                                    required>{{ comment.body }}</textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                                <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </small>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

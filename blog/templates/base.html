@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="uk">
+
+<head>
+    <style>
+        body,
+        .card,
+        .navbar,
+        .modal-content {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .editor-dark .CodeMirror {
+            background-color: #212529;
+            color: #dee2e6;
+        }
+
+        .editor-dark .editor-toolbar>a {
+            color: #dee2e6 !important;
+        }
+
+        .editor-dark .editor-toolbar>a.active,
+        .editor-dark .editor-toolbar>a:hover {
+            background: #495057;
+            border-color: #495057;
+        }
+
+        html[data-bs-theme="dark"] .tagify {
+            --tag-bg: #0d6efd;
+            --tag-text-color: white;
+            --input-color: #dee2e6;
+            --placeholder-color: #adb5bd;
+            background: #2b3035;
+            border-color: #495057;
+        }
+
+        html[data-bs-theme="dark"] .tagify__dropdown {
+            background: #2b3035 !important;
+            border-color: #495057 !important;
+        }
+
+        html[data-bs-theme="dark"] .tagify__dropdown__item {
+            color: #000000 !important;
+        }
+
+        html[data-bs-theme="dark"] .tagify__dropdown__item--active {
+            background: #0d6efd !important;
+            color: white !important;
+
+        }
+    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мій блог</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/@yaireo/tagify"></script>
+    <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">Re:Action</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="d-flex me-auto my-2 my-lg-0" action="{{ url_for('main.search') }}" method="GET">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Пошук..." aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Знайти</button>
+                </form>
+
+                <div class="navbar-nav ms-auto">
+                    <a href="#" class="nav-link" id="theme-switcher">Тема</a>
+
+                    {% if current_user.is_authenticated %}
+                    <a class="nav-link" href="{{ url_for('posts.create_post') }}">Створити статтю</a>
+                    <a class="nav-link" href="{{ url_for('users.profile', username=current_user.username) }}">Мій
+                        профіль</a>
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                        <img src="{{ current_user.avatar(30) }}" class="rounded-circle"
+                            style="width: 30px; height: 30px; margin-right: 5px;">
+                        Вийти
+                    </a>
+                    {% else %}
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Увійти</a>
+                    <a class="nav-link" href="{{ url_for('auth.register') }}">Реєстрація</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const htmlTag = document.documentElement;
+
+            function applyTheme(theme) {
+                htmlTag.setAttribute('data-bs-theme', theme);
+                if (theme === 'dark') {
+                    themeSwitcher.innerHTML = '☀️';
+                } else {
+                    themeSwitcher.innerHTML = '🌙';
+                }
+            }
+
+            function toggleTheme() {
+                const currentTheme = htmlTag.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                localStorage.setItem('theme', newTheme);
+
+                applyTheme(newTheme);
+            }
+
+            themeSwitcher.addEventListener('click', function (e) {
+                e.preventDefault();
+                toggleTheme();
+            });
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+
+        })();
+    </script>
+</body>
+
+</html>

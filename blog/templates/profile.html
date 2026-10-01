@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <img src="{{ user.avatar(200) }}" class="img-fluid rounded-circle mb-3" alt="Avatar">
+        <h3>{{ user.username }}</h3>
+        <p class="text-muted">Дата реєстрації: {{ user.id }}</p> <!-- Поки що просто ID для прикладу -->
+    </div>
+    <div class="col-md-8">
+        <h4>Статті автора:</h4>
+        <hr>
+        {% for post in user.posts | sort(attribute='published_at', reverse=True) %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">Читати
+                    далі</a>
+            </div>
+        </div>
+        {% else %}
+        <p>Цей автор ще не опублікував жодної статті.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

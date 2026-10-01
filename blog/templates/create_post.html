@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Створити нову статтю</h2>
+<hr>
+<form method="POST">
+    <div class="mb-3">
+        <label for="title" class="form-label">Заголовок</label>
+        <input type="text" class="form-control" id="title" name="title" required value="{{ title or '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="content" class="form-label">Зміст статті</label>
+        <textarea class="form-control" id="content" name="content" rows="10">{{ content or '' }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="tags" class="form-label">Теги</label>
+        <input type="text" class="form-control" id="tags" name="tags" placeholder="Додайте теги...">
+    </div>
+    <button type="submit" class="btn btn-primary">Опублікувати</button>
+</form>
+
+<script>
+    var simplemde = new SimpleMDE({ element: document.getElementById("content"), spellChecker: false });
+
+    var input = document.querySelector('input[name=tags]');
+    var whitelist = {{ existing_tags | tojson | safe }};
+    var tagify = new Tagify(input, {
+        whitelist: whitelist,
+        dropdown: { enabled: 0, closeOnSelect: false }
+    });
+    {% if post and post.tags %}
+    var existingPostTags = {{ post.tags | map(attribute = 'name') | list | tojson | safe }};
+    if (existingPostTags && existingPostTags.length > 0) {
+        tagify.addTags(existingPostTags);
+    }
+    {% endif %}
+
+    function applySimpleMDEDarkTheme() {
+        const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        const editorToolbar = document.querySelector('.editor-toolbar');
+        if (editorToolbar) {
+            const editorWrapper = editorToolbar.parentNode;
+            if (isDark) editorWrapper.classList.add('editor-dark');
+            else editorWrapper.classList.remove('editor-dark');
+        }
+    }
+    setTimeout(applySimpleMDEDarkTheme, 100);
+    const themeSwitcher = document.getElementById('theme-switcher');
+    if (themeSwitcher) {
+        themeSwitcher.addEventListener('click', () => setTimeout(applySimpleMDEDarkTheme, 50));
+    }
+</script>
+{% endblock %}
